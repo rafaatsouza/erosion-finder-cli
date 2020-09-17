@@ -1,4 +1,4 @@
-<a href="https://github.com/rafaatsouza/erosion-finder/blob/master/icon.png"><img width="42px" height="42px" src="icon.png" /></a> ErosionFinder CLI
+<a href="icon.png"><img width="42px" height="42px" src="icon.png" /></a> ErosionFinder CLI
 ==================================
 
 A command line interface to use ErosionFinder library to find architectural erosion across C# code.
