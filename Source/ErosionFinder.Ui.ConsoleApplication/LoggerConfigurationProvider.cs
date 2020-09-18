@@ -20,11 +20,9 @@ namespace ErosionFinder.Ui.ConsoleApplication
             => new LoggingLevelSwitch(LogEventLevel.Error);
 
         private static LoggerConfiguration GetLoggerConfiguration()
-        {
-            return new LoggerConfiguration()
-                .MinimumLevel.ControlledBy(LoggingLevelSwitch)
-                .WriteTo.File(GetLogFilePath(), rollingInterval: RollingInterval.Minute);
-        }
+            => new LoggerConfiguration()
+            .MinimumLevel.ControlledBy(LoggingLevelSwitch)
+            .WriteTo.File(GetLogFilePath(), rollingInterval: RollingInterval.Minute);
 
         private static string GetLogFilePath() => $"logs/{DateTime.Now:yyyyMMdd-HHmm}.txt";
     }

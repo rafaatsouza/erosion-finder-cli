@@ -4,6 +4,7 @@ using ErosionFinder.Data.Interfaces;
 using ErosionFinder.Data.Models;
 using Microsoft.Build.Locator;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -94,7 +95,7 @@ namespace ErosionFinder.Ui.ConsoleApplication
                 var jsonContent = JsonConvert.SerializeObject(violations, new JsonSerializerSettings()
                 {
                     Formatting = Formatting.Indented,
-                    Converters = new List<JsonConverter>() { new Newtonsoft.Json.Converters.StringEnumConverter() },
+                    Converters = new List<JsonConverter>() { new StringEnumConverter() },
                     ContractResolver = new OrderContractResolver()
                 });
 

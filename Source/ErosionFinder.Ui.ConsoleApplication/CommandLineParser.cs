@@ -6,7 +6,8 @@ namespace ErosionFinder.Ui.ConsoleApplication
     {
         public static ApplicationArguments GetArguments(string[] args)
         {
-            var result = Parser.Default.ParseArguments<ApplicationArguments>(args);
+            var result = Parser.Default
+                .ParseArguments<ApplicationArguments>(args);
 
             if (result is Parsed<ApplicationArguments> arguments)
             {
