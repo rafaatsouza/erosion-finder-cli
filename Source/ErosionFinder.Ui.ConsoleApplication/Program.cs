@@ -1,6 +1,5 @@
 ﻿using ErosionFinder.Data.Converter;
 using ErosionFinder.Data.Exceptions.Base;
-using ErosionFinder.Data.Interfaces;
 using ErosionFinder.Data.Models;
 using Microsoft.Build.Locator;
 using Newtonsoft.Json;
@@ -15,8 +14,6 @@ namespace ErosionFinder.Ui.ConsoleApplication
 {
     static class Program
     {
-        private static readonly IErosionFinderService erosionFinderService;
-
         private const string ReportFileName = "Violations.json";
 
         static Program()
@@ -27,9 +24,6 @@ namespace ErosionFinder.Ui.ConsoleApplication
             {
                 throw new Exception("MSBuild could not be registered");
             }
-            
-            erosionFinderService = ServiceCollectionProvider.GetService<IErosionFinderService>()
-                ?? throw new ArgumentNullException(nameof(IErosionFinderService));
         }
 
         static async Task Main(string[] args)
@@ -41,17 +35,13 @@ namespace ErosionFinder.Ui.ConsoleApplication
 
             try
             {
-                if (arguments.LogLevel.HasValue)
-                {
-                    LoggerConfigurationProvider.AlterLogLevel(arguments.LogLevel.Value);
-                }
-
                 var cancellationTokenSource = new CancellationTokenSource();
 
                 var constraints = GetConstraintsByFilePath(arguments.ConstraintsFilePath);
 
-                var violations = await erosionFinderService.GetViolationsBySolutionFilePathAndConstraintsAsync(
-                    arguments.SolutionFilePath, constraints, cancellationTokenSource.Token);
+                var violations = await ErosionFinderMethods
+                    .GetViolationsBySolutionFilePathAndConstraintsAsync(
+                        arguments.SolutionFilePath, constraints, cancellationTokenSource.Token);
 
                 var reportFilePath = await WriteReportAsync(violations);
 

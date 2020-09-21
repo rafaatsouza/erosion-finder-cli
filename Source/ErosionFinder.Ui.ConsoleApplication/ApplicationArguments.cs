@@ -1,5 +1,4 @@
 ﻿using CommandLine;
-using Serilog.Events;
 
 namespace ErosionFinder.Ui.ConsoleApplication
 {
@@ -12,9 +11,5 @@ namespace ErosionFinder.Ui.ConsoleApplication
         [Option('c', "constraint", Required = true,
             HelpText = "Constraints file ( .json ) path")]
         public string ConstraintsFilePath { get; set; }
-
-        [Option('v', "verbosity", Required = false, Default = null,
-            HelpText = "Log verbosity level; if not defined, only errors will be logged.")]
-        public LogEventLevel? LogLevel { get; set; }
     }
 }
