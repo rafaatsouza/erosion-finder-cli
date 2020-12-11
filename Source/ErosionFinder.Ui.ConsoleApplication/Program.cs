@@ -12,8 +12,6 @@ namespace ErosionFinder.Ui.ConsoleApplication
 {
     static class Program
     {
-        private const string ReportFileName = "Violations.json";
-
         static Program()
         {
             if (MSBuildLocator.CanRegister)
@@ -46,9 +44,9 @@ namespace ErosionFinder.Ui.ConsoleApplication
                         arguments.SolutionFilePath, constraints, cancellationTokenSource.Token);
 
                 var reportFilePath = await ReportGenerator
-                    .WriteReportAsync(ReportFileName, violations);
+                    .WriteReportAsync(arguments.OutputFilePath, violations);
 
-                Console.WriteLine($"Report generated: {reportFilePath}");
+                Console.WriteLine($"Report generated: {arguments.OutputFilePath}");
             }
             catch (ErosionFinderException ex)
             {
