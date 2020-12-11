@@ -28,7 +28,6 @@ namespace ErosionFinder.Ui.ConsoleApplication
 
             cancellationTokenSource = new CancellationTokenSource();
 
-            Console.Clear();
             Console.CancelKeyPress += new ConsoleCancelEventHandler(CancelHandler);
         }
 
@@ -57,7 +56,7 @@ namespace ErosionFinder.Ui.ConsoleApplication
             {
                 Console.WriteLine($"{ex.Key} Error: {ex.Message}");
             }
-            catch (OperationCanceledException ex)
+            catch (OperationCanceledException)
             { 
                 Console.WriteLine("Operation canceled.");
             }
