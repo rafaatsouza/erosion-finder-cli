@@ -1,0 +1,35 @@
+name: publish-packages
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1.7.2
+        with:
+          dotnet-version: 5.0.101
+
+      - name: Install dependencies
+        run: dotnet restore Source/
+
+      - name: Build
+        run: dotnet build Source/ --configuration Release --no-restore
+      
+      - name: Publish
+        run: dotnet publish Source/ -c release -o ~/publish
+
+      - name: Zip published folder
+        run: find ~/publish -path '*/.*' -prune -o -type f -print | zip ~/erosion-finder-cli.zip -@
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ErosionFinderCLI
+          path: ~/erosion-finder-cli
