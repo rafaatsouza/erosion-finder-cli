@@ -3,9 +3,7 @@ using ErosionFinder.Data.Exceptions.Base;
 using ErosionFinder.Data.Models;
 using Microsoft.Build.Locator;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,16 +12,23 @@ namespace ErosionFinder.Ui.ConsoleApplication
 {
     static class Program
     {
-        private const string ReportFileName = "Violations.json";
+        private readonly static CancellationTokenSource cancellationTokenSource;
 
         static Program()
         {
-            MSBuildLocator.RegisterDefaults();
+            if (MSBuildLocator.CanRegister)
+            {
+                MSBuildLocator.RegisterDefaults();
+            }
 
             if (!MSBuildLocator.IsRegistered)
             {
                 throw new Exception("MSBuild could not be registered");
             }
+
+            cancellationTokenSource = new CancellationTokenSource();
+
+            Console.CancelKeyPress += new ConsoleCancelEventHandler(CancelHandler);
         }
 
         static async Task Main(string[] args)
@@ -35,21 +40,25 @@ namespace ErosionFinder.Ui.ConsoleApplication
 
             try
             {
-                var cancellationTokenSource = new CancellationTokenSource();
-
-                var constraints = GetConstraintsByFilePath(arguments.ConstraintsFilePath);
+                var constraints = GetConstraintsByFilePath(
+                    arguments.ArchitecturalLayersAndRulesFilePath);
 
                 var violations = await ErosionFinderMethods
                     .GetViolationsBySolutionFilePathAndConstraintsAsync(
                         arguments.SolutionFilePath, constraints, cancellationTokenSource.Token);
 
-                var reportFilePath = await WriteReportAsync(violations);
+                await ReportGenerator.WriteReportAsync(
+                    arguments.OutputFilePath, violations);
 
-                Console.WriteLine($"Report generated: {reportFilePath}");
+                Console.WriteLine($"Report generated: {arguments.OutputFilePath}");
             }
             catch (ErosionFinderException ex)
             {
                 Console.WriteLine($"{ex.Key} Error: {ex.Message}");
+            }
+            catch (OperationCanceledException)
+            { 
+                Console.WriteLine("Operation canceled.");
             }
             catch (Exception ex)
             {
@@ -61,46 +70,26 @@ namespace ErosionFinder.Ui.ConsoleApplication
         {
             var constraintsFile = new FileInfo(constraintsFilePath);
 
-            if (constraintsFile.Exists)
+            if (!constraintsFile.Exists)
+                return null;
+
+            using (var streamReader = new StreamReader(constraintsFilePath))
             {
-                using (var streamReader = new StreamReader(constraintsFilePath))
-                {
-                    var json = streamReader.ReadToEnd();
-                    var constraints = JsonConvert
-                        .DeserializeObject<ArchitecturalConstraints>(json, new NamespacesGroupingDeserializer());
-
-                    return constraints;
-                }
+                var json = streamReader.ReadToEnd();
+                
+                return JsonConvert.DeserializeObject<ArchitecturalConstraints>(
+                    json, new NamespacesGroupingDeserializer());
             }
-
-            return null;
         }
 
-        private static async Task<string> WriteReportAsync(IEnumerable<Violation> violations)
+        private static void CancelHandler(
+            object sender, ConsoleCancelEventArgs args)
         {
-            OverwriteFile(ReportFileName);
-
-            using (var file = File.CreateText(ReportFileName))
-            {
-                var jsonContent = JsonConvert.SerializeObject(violations, new JsonSerializerSettings()
-                {
-                    Formatting = Formatting.Indented,
-                    Converters = new List<JsonConverter>() { new StringEnumConverter() },
-                    ContractResolver = new OrderContractResolver()
-                });
-
-                await file.WriteAsync(jsonContent);
-            }
-
-            return ReportFileName;
-        }
-
-        private static void OverwriteFile(string reportFileName)
-        {
-            var fileInfo = new FileInfo(reportFileName);
-
-            if (fileInfo.Exists)
-                fileInfo.Delete();
+            Console.WriteLine("Canceling...");
+            
+            cancellationTokenSource.Cancel();
+            
+            args.Cancel = true;
         }
     }
 }
