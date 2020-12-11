@@ -12,6 +12,8 @@ namespace ErosionFinder.Ui.ConsoleApplication
 {
     static class Program
     {
+        private readonly static CancellationTokenSource cancellationTokenSource;
+
         static Program()
         {
             if (MSBuildLocator.CanRegister)
@@ -23,6 +25,11 @@ namespace ErosionFinder.Ui.ConsoleApplication
             {
                 throw new Exception("MSBuild could not be registered");
             }
+
+            cancellationTokenSource = new CancellationTokenSource();
+
+            Console.Clear();
+            Console.CancelKeyPress += new ConsoleCancelEventHandler(CancelHandler);
         }
 
         static async Task Main(string[] args)
@@ -34,8 +41,6 @@ namespace ErosionFinder.Ui.ConsoleApplication
 
             try
             {
-                var cancellationTokenSource = new CancellationTokenSource();
-
                 var constraints = GetConstraintsByFilePath(
                     arguments.ArchitecturalLayersAndRulesFilePath);
 
@@ -51,6 +56,10 @@ namespace ErosionFinder.Ui.ConsoleApplication
             catch (ErosionFinderException ex)
             {
                 Console.WriteLine($"{ex.Key} Error: {ex.Message}");
+            }
+            catch (OperationCanceledException ex)
+            { 
+                Console.WriteLine("Operation canceled.");
             }
             catch (Exception ex)
             {
@@ -72,6 +81,16 @@ namespace ErosionFinder.Ui.ConsoleApplication
                 return JsonConvert.DeserializeObject<ArchitecturalConstraints>(
                     json, new NamespacesGroupingDeserializer());
             }
+        }
+
+        private static void CancelHandler(
+            object sender, ConsoleCancelEventArgs args)
+        {
+            Console.WriteLine("Canceling...");
+            
+            cancellationTokenSource.Cancel();
+            
+            args.Cancel = true;
         }
     }
 }
