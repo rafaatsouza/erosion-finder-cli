@@ -10,7 +10,7 @@ namespace ErosionFinder.Ui.ConsoleApplication
 {
     static class ReportGenerator
     {
-        private readonly static JsonSerializerSettings SerializerSettings { get; }
+        private static JsonSerializerSettings SerializerSettings { get; }
             = new JsonSerializerSettings()
             {
                 Formatting = Formatting.Indented,
