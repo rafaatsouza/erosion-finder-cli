@@ -3,9 +3,7 @@ using ErosionFinder.Data.Exceptions.Base;
 using ErosionFinder.Data.Models;
 using Microsoft.Build.Locator;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -43,7 +41,8 @@ namespace ErosionFinder.Ui.ConsoleApplication
                     .GetViolationsBySolutionFilePathAndConstraintsAsync(
                         arguments.SolutionFilePath, constraints, cancellationTokenSource.Token);
 
-                var reportFilePath = await WriteReportAsync(violations);
+                var reportFilePath = await ReportGenerator
+                    .WriteReportAsync(ReportFileName, violations);
 
                 Console.WriteLine($"Report generated: {reportFilePath}");
             }
@@ -61,46 +60,16 @@ namespace ErosionFinder.Ui.ConsoleApplication
         {
             var constraintsFile = new FileInfo(constraintsFilePath);
 
-            if (constraintsFile.Exists)
+            if (!constraintsFile.Exists)
+                return null;
+
+            using (var streamReader = new StreamReader(constraintsFilePath))
             {
-                using (var streamReader = new StreamReader(constraintsFilePath))
-                {
-                    var json = streamReader.ReadToEnd();
-                    var constraints = JsonConvert
-                        .DeserializeObject<ArchitecturalConstraints>(json, new NamespacesGroupingDeserializer());
-
-                    return constraints;
-                }
+                var json = streamReader.ReadToEnd();
+                
+                return JsonConvert.DeserializeObject<ArchitecturalConstraints>(
+                    json, new NamespacesGroupingDeserializer());
             }
-
-            return null;
-        }
-
-        private static async Task<string> WriteReportAsync(IEnumerable<Violation> violations)
-        {
-            OverwriteFile(ReportFileName);
-
-            using (var file = File.CreateText(ReportFileName))
-            {
-                var jsonContent = JsonConvert.SerializeObject(violations, new JsonSerializerSettings()
-                {
-                    Formatting = Formatting.Indented,
-                    Converters = new List<JsonConverter>() { new StringEnumConverter() },
-                    ContractResolver = new OrderContractResolver()
-                });
-
-                await file.WriteAsync(jsonContent);
-            }
-
-            return ReportFileName;
-        }
-
-        private static void OverwriteFile(string reportFileName)
-        {
-            var fileInfo = new FileInfo(reportFileName);
-
-            if (fileInfo.Exists)
-                fileInfo.Delete();
         }
     }
 }
