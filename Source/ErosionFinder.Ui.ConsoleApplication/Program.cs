@@ -16,7 +16,10 @@ namespace ErosionFinder.Ui.ConsoleApplication
 
         static Program()
         {
-            MSBuildLocator.RegisterDefaults();
+            if (MSBuildLocator.CanRegister)
+            {
+                MSBuildLocator.RegisterDefaults();
+            }
 
             if (!MSBuildLocator.IsRegistered)
             {
