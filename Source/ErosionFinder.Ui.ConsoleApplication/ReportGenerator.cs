@@ -17,7 +17,7 @@ namespace ErosionFinder.Ui.ConsoleApplication
                 ContractResolver = new OrderContractResolver()
             };
 
-        public static async Task<string> WriteReportAsync(
+        public static async Task WriteReportAsync(
             string reportFileName, IEnumerable<Violation> violations)
         {
             OverwriteFile(reportFileName);
@@ -29,8 +29,6 @@ namespace ErosionFinder.Ui.ConsoleApplication
 
                 await file.WriteAsync(jsonContent);
             }
-
-            return reportFileName;
         }
 
         private static void OverwriteFile(

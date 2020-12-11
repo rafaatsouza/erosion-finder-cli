@@ -47,8 +47,8 @@ namespace ErosionFinder.Ui.ConsoleApplication
                     .GetViolationsBySolutionFilePathAndConstraintsAsync(
                         arguments.SolutionFilePath, constraints, cancellationTokenSource.Token);
 
-                var reportFilePath = await ReportGenerator
-                    .WriteReportAsync(arguments.OutputFilePath, violations);
+                await ReportGenerator.WriteReportAsync(
+                    arguments.OutputFilePath, violations);
 
                 Console.WriteLine($"Report generated: {arguments.OutputFilePath}");
             }
