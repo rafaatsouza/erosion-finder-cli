@@ -33,6 +33,8 @@ namespace ErosionFinder.Ui.ConsoleApplication
 
         static async Task Main(string[] args)
         {
+            Console.WriteLine("Starting...");
+
             var arguments = CommandLineParser.GetArguments(args);
 
             if (arguments == null)
