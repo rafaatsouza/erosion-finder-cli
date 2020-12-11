@@ -38,7 +38,8 @@ namespace ErosionFinder.Ui.ConsoleApplication
             {
                 var cancellationTokenSource = new CancellationTokenSource();
 
-                var constraints = GetConstraintsByFilePath(arguments.ConstraintsFilePath);
+                var constraints = GetConstraintsByFilePath(
+                    arguments.ArchitecturalLayersAndRulesFilePath);
 
                 var violations = await ErosionFinderMethods
                     .GetViolationsBySolutionFilePathAndConstraintsAsync(
