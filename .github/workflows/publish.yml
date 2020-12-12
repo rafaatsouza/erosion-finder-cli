@@ -27,11 +27,8 @@ jobs:
       - name: Publish
         run: dotnet publish Source/ -c release -o ~/publish
 
-      - name: Zip published folder
-        run: find ~/publish -path '*/.*' -prune -o -type f -print | zip ~/erosion-finder-cli.zip -@
-
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: ErosionFinderCLI
-          path: ~/erosion-finder-cli.zip
+          path: ~/publish
