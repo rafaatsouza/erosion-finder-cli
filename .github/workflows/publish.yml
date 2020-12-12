@@ -5,7 +5,7 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-  
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -22,8 +22,7 @@ jobs:
         run: dotnet restore Source/
 
       - name: Set version
-        run: |
-        echo ::set-output name=VERSION::$(grep '<Version>' < Source/ErosionFinder.Ui.ConsoleApplication/ErosionFinder.Ui.ConsoleApplication.csproj | sed 's/.*<Version>\(.*\)<\/Version>/\1/')
+        run: echo "VERSION=$(grep '<Version>' < Source/ErosionFinder.Ui.ConsoleApplication/ErosionFinder.Ui.ConsoleApplication.csproj | sed 's/.*<Version>\(.*\)<\/Version>/\1/')" >> $GITHUB_ENV
 
       - name: Build
         run: dotnet build Source/ --configuration Release --no-restore
@@ -31,18 +30,18 @@ jobs:
       - name: Publish
         shell: bash
         run: |          
-          release_name="erosion-finder-cli-v${{ steps.set-version.outputs.VERSION }}"
+          release_name="erosion-finder-cli-v$VERSION"
 
           dotnet publish Source/ -c release -o "$release_name"
 
           tar czvf "${release_name}.tar.gz" "$release_name"
 
           rm -r "$release_name"
-
+          
       - name: Upload
         uses: softprops/action-gh-release@v1
         with:
           files: "erosion-finder-cli*"
-          tag_name: ${{ steps.set-version.outputs.VERSION }}
+          tag_name: ${{ env.VERSION }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUBTOKEN }}
