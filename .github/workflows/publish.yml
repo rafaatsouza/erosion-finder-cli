@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup .NET Core
+      - name: Setup .NET
         uses: actions/setup-dotnet@v1.7.2
         with:
           dotnet-version: 5.0.101
@@ -22,7 +22,7 @@ jobs:
         run: dotnet restore Source/
 
       - name: Set version
-        run: echo "$(grep '<Version>' < Source/ErosionFinder.Ui.ConsoleApplication/ErosionFinder.Ui.ConsoleApplication.csproj | sed 's/.*<Version>\(.*\)<\/Version>/\1/')" >> $VERSION
+        run: echo "VERSION=$(grep '<Version>' < Source/ErosionFinder.Ui.ConsoleApplication/ErosionFinder.Ui.ConsoleApplication.csproj | sed 's/.*<Version>\(.*\)<\/Version>/\1/')" >> $GITHUB_ENV
 
       - name: Build
         run: dotnet build Source/ --configuration Release --no-restore
