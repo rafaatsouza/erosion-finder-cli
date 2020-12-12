@@ -5,6 +5,9 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  tags:
+    - 'v*'
+
 
 jobs:
   build:
@@ -22,7 +25,6 @@ jobs:
         run: dotnet restore Source/
 
       - name: Set version
-        id: set_version
         run: echo "VERSION=$(grep '<Version>' < Source/ErosionFinder.Ui.ConsoleApplication/ErosionFinder.Ui.ConsoleApplication.csproj | sed 's/.*<Version>\(.*\)<\/Version>/\1/')" >> $GITHUB_ENV
 
       - name: Build
@@ -43,6 +45,5 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: "erosion-finder-cli*"
-          tag_name: ${{ steps.set_version.outputs.VERSION }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUBTOKEN }}
