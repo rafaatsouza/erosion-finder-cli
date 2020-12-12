@@ -1,4 +1,5 @@
-﻿using ErosionFinder.Data.Converter;
+﻿using ErosionFinder;
+using ErosionFinder.Data.Converter;
 using ErosionFinder.Data.Exceptions.Base;
 using ErosionFinder.Data.Models;
 using Microsoft.Build.Locator;
@@ -8,7 +9,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ErosionFinder.Ui.ConsoleApplication
+namespace ErosionFinderCLI
 {
     static class Program
     {

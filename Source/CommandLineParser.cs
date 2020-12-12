@@ -1,6 +1,6 @@
 ﻿using CommandLine;
 
-namespace ErosionFinder.Ui.ConsoleApplication
+namespace ErosionFinderCLI
 {
     static class CommandLineParser
     {
