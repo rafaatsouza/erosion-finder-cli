@@ -28,7 +28,7 @@ jobs:
         shell: bash
         run: |
           version=$(grep '<Version>' < Source/ErosionFinder.Ui.ConsoleApplication/ErosionFinder.Ui.ConsoleApplication.csproj | sed 's/.*<Version>\(.*\)<\/Version>/\1/')
-          release_name="erosion-finder-cli-$version"
+          release_name="erosion-finder-cli-v$version"
 
           dotnet publish Source/ -c release -o "$release_name"
 
