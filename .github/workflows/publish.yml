@@ -30,7 +30,7 @@ jobs:
       - name: Publish
         shell: bash
         run: |          
-          release_name="erosion-finder-cli-v${{ VERSION }}"
+          release_name="erosion-finder-cli-v$VERSION"
 
           dotnet publish Source/ -c release -o "$release_name"
 
