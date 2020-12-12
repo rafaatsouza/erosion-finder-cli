@@ -25,10 +25,20 @@ jobs:
         run: dotnet build Source/ --configuration Release --no-restore
       
       - name: Publish
-        run: dotnet publish Source/ -c release -o ~/publish
+        shell: bash
+        run: |
+          version=$(grep '<Version>' < Source/ErosionFinder.Ui.ConsoleApplication/ErosionFinder.Ui.ConsoleApplication.csproj | sed 's/.*<Version>\(.*\)<\/Version>/\1/')
+          release_name="erosion-finder-cli-$version"
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v2
+          dotnet publish Source/ -c release -o "$release_name"
+
+          tar czvf "${release_name}.tar.gz" "$release_name"
+
+          rm -r "$release_name"
+
+      - name: Upload
+        uses: softprops/action-gh-release@v1
         with:
-          name: ErosionFinderCLI
-          path: ~/publish
+          files: "erosion-finder-cli*"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUBTOKEN }}
