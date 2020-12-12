@@ -42,6 +42,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: "erosion-finder-cli*"
-          tag_name: $VERSION
+          tag_name: ${{ VERSION }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUBTOKEN }}
