@@ -22,8 +22,8 @@ jobs:
         run: dotnet restore Source/
 
       - name: Set version
-        run: echo '::set-output name=VERSION::$(grep '<Version>' < Source/ErosionFinder.Ui.ConsoleApplication/ErosionFinder.Ui.ConsoleApplication.csproj | sed 's/.*<Version>\(.*\)<\/Version>/\1/')'
-        id: set-version
+        run: |
+        echo ::set-output name=VERSION::$(grep '<Version>' < Source/ErosionFinder.Ui.ConsoleApplication/ErosionFinder.Ui.ConsoleApplication.csproj | sed 's/.*<Version>\(.*\)<\/Version>/\1/')
 
       - name: Build
         run: dotnet build Source/ --configuration Release --no-restore
