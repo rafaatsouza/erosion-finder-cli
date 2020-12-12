@@ -21,14 +21,16 @@ jobs:
       - name: Install dependencies
         run: dotnet restore Source/
 
+      - name: Set version
+        run: echo "version=$(grep '<Version>' < Source/ErosionFinder.Ui.ConsoleApplication/ErosionFinder.Ui.ConsoleApplication.csproj | sed 's/.*<Version>\(.*\)<\/Version>/\1/')" >> $VERSION
+
       - name: Build
         run: dotnet build Source/ --configuration Release --no-restore
       
       - name: Publish
         shell: bash
-        run: |
-          version=$(grep '<Version>' < Source/ErosionFinder.Ui.ConsoleApplication/ErosionFinder.Ui.ConsoleApplication.csproj | sed 's/.*<Version>\(.*\)<\/Version>/\1/')
-          release_name="erosion-finder-cli-v$version"
+        run: |          
+          release_name="erosion-finder-cli-v${{ secrets.VERSION }}"
 
           dotnet publish Source/ -c release -o "$release_name"
 
