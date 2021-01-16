@@ -13,5 +13,9 @@
     <PackageReference Include="ErosionFinder.Data.Converter" Version="1.3.1" />
     <PackageReference Include="Microsoft.Build.Locator" Version="1.2.6" />
   </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\report.html" />
+  </ItemGroup>
   
 </Project>
