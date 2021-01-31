@@ -4,7 +4,7 @@ namespace ErosionFinderCLI
 {
     class ApplicationArguments
     {
-        private const string DefaultOutputFilePath = "Violations.json";
+        private const string DefaultOutputFilePath = "ErosionFinderOutput.html";
 
         [Option('s', "solution", Required = true,
             HelpText = "Solution file ( .sln ) path")]

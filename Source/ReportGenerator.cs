@@ -1,40 +1,97 @@
 using ErosionFinder.Data.Models;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+using ErosionFinderCLI.Helpers;
+using ErosionFinderCLI.Models;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace ErosionFinderCLI
 {
     static class ReportGenerator
     {
-        private static JsonSerializerSettings SerializerSettings { get; }
-            = new JsonSerializerSettings()
-            {
-                Formatting = Formatting.Indented,
-                Converters = new List<JsonConverter>() { new StringEnumConverter() },
-                ContractResolver = new OrderContractResolver()
-            };
+        private const string regexTemplatePattern = "\\{\\{(.*?)\\}\\}";
+        private const string templateFileName = "report.html";
 
-        public static async Task WriteReportAsync(
-            string reportFileName, IEnumerable<Violation> violations)
+        private readonly static Type modelType = typeof(Report);
+        private readonly static ICollection<string> textResources = 
+            new string[] { "bootstrap.min.css", "bootstrap.min.js", 
+                "jquery-3.2.1.slim.min.js", "loader.js", "erosion-finder.css" };
+
+        public static async Task WriteReportAsync(string reportFolderFullName, 
+            string reportFileName, ArchitecturalConformanceCheck conformanceCheck)
         {
-            OverwriteFile(reportFileName);
+            Console.WriteLine(reportFolderFullName);
+            Console.WriteLine(reportFileName);
 
-            using (var file = File.CreateText(reportFileName))
+            var resourcesTask = WriteResourceFilesAsync(
+                reportFolderFullName);
+
+            var reportFileFullName = Path.Join(
+                reportFolderFullName, reportFileName);
+
+            DeleteFile(reportFileFullName);
+
+            using (var file = File.CreateText(reportFileFullName))
             {
-                var jsonContent = JsonConvert
-                    .SerializeObject(violations, SerializerSettings);
+                var reportContent = GetReportContent(conformanceCheck);
 
-                await file.WriteAsync(jsonContent);
+                await file.WriteAsync(reportContent);
+            }
+
+            await resourcesTask;
+        }
+
+        private static string GetReportContent(
+            ArchitecturalConformanceCheck conformanceCheck)
+        {
+            var templateContent = ResourceHelper
+                .GetResourceTextContent(templateFileName);
+
+            var model = new Report(conformanceCheck);
+
+            return Regex.Replace(templateContent, regexTemplatePattern, m =>
+                {
+                    if (m.Groups.Count == 0)
+                        return m.Value;
+
+                    var property = modelType.GetProperty(m.Groups[1].Value);
+
+                    var value = property?.GetValue(model, null)?.ToString();
+
+                    return value ?? m.Value;
+                });
+        }
+
+        private static async Task WriteResourceFilesAsync(string directory)
+        {
+            //TODO: Validar quando flag "-o" não for passada
+            
+            var folder = Path.Join(directory, "Resources");
+
+            var directoryInfo = new DirectoryInfo(folder);
+
+            if (!directoryInfo.Exists)
+                Directory.CreateDirectory(folder);
+
+            foreach (var resource in textResources)
+            {
+                var filePath = Path.Join(folder, resource);
+                var content = ResourceHelper.GetResourceTextContent(resource);
+
+                DeleteFile(filePath);
+
+                using (var file = File.CreateText(filePath))
+                {
+                    await file.WriteAsync(content);
+                }
             }
         }
 
-        private static void OverwriteFile(
-            string reportFileName)
+        private static void DeleteFile(string filePath)
         {
-            var fileInfo = new FileInfo(reportFileName);
+            var fileInfo = new FileInfo(filePath);
 
             if (fileInfo.Exists)
                 fileInfo.Delete();

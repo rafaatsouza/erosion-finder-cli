@@ -36,24 +36,17 @@ namespace ErosionFinderCLI
         {
             Console.WriteLine("Starting...");
 
-            var arguments = CommandLineParser.GetArguments(args);
-
-            if (arguments == null)
-                return;
-
             try
             {
-                var constraints = GetConstraintsByFilePath(
-                    arguments.ArchitecturalLayersAndRulesFilePath);
+                var parameters = CommandLineParser.GetParameters(args);
 
-                var violations = await ErosionFinderMethods
-                    .GetViolationsBySolutionFilePathAndConstraintsAsync(
-                        arguments.SolutionFilePath, constraints, cancellationTokenSource.Token);
+                var conformanceCheck = await GetArchitecturalConformanceCheckAsync(
+                    parameters.ArchitecturalLayersAndRulesFilePath, parameters.SolutionFilePath, cancellationTokenSource.Token);
 
-                await ReportGenerator.WriteReportAsync(
-                    arguments.OutputFilePath, violations);
+                await ReportGenerator.WriteReportAsync(parameters.OutputFolderPath,
+                    parameters.OutputFileName, conformanceCheck);
 
-                Console.WriteLine($"Report generated: {arguments.OutputFilePath}");
+                Console.WriteLine($"Report generated: {parameters.OutputFileName}");
             }
             catch (ErosionFinderException ex)
             {
@@ -67,6 +60,15 @@ namespace ErosionFinderCLI
             {
                 Console.WriteLine($"Critical Error: {ex.Message}");
             }
+        }
+
+        private static Task<ArchitecturalConformanceCheck> GetArchitecturalConformanceCheckAsync(
+            string layersAndRulesFilePath, string solutionFilePath, CancellationToken cancellationToken)
+        {
+            var constraints = GetConstraintsByFilePath(layersAndRulesFilePath);
+
+            return ErosionFinderMethods.CheckArchitecturalConformanceAsync(
+                solutionFilePath, constraints, cancellationToken);
         }
 
         private static ArchitecturalConstraints GetConstraintsByFilePath(string constraintsFilePath)
