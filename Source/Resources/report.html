@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+        <meta description="Conformance check output from {{SolutionName}} Erosion Check" content="Conformance check output from {{SolutionName}} Erosion Check" />
+        <title>{{SolutionName}} Erosion Check</title>
+        <link rel="stylesheet" href="Resources/bootstrap.min.css" />
+        <link rel="stylesheet" href="Resources/erosion-finder.css" />
+        <script type="text/javascript">
+            function documentReady(fn) {
+                if (document.readyState != 'loading'){
+                    fn();
+                } else if (document.addEventListener) {
+                    document.addEventListener('DOMContentLoaded', fn);
+                } else {
+                    document.attachEvent('onreadystatechange', function() {
+                    if (document.readyState != 'loading')
+                        fn();
+                    });
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <header id="header">
+            <div class="inner">
+                <div class="background-icon logo-background"></div>
+                <span>ErosionFinder</span>
+            </div>
+        </header>
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-10">
+                    <div class="row justify-content-start">
+                        <div style="padding-top: 15px;" class="col-12">
+                            <h2>Erosions Summary</h2>
+                        </div>
+                    </div>
+                    <div class="row justify-content-start">
+                        <div class="col-12">
+                            <div class="chart" id="architectural_rules_chart"></div>
+                        </div>
+                    </div>
+                    <div id="rule-list">
+                    </div>
+                </div>
+            </div>            
+        </div>
+        <script type="text/javascript" src="Resources/jquery-3.2.1.slim.min.js"></script>
+        <script type="text/javascript" src="Resources/bootstrap.min.js"></script>
+        <script type="text/javascript" src="Resources/loader.js"></script>
+        <script type="text/javascript">
+            const transgressedRules = {{TransgressedRules}};
+            const followedRules = {{FollowedRules}};
+
+            function drawArchitecturalRulesChart() {                
+                let data = google.visualization.arrayToDataTable([
+                    ['Rules', 'Components'],
+                    ['Transgressed Rules', {{ViolatedRulesCount}}],
+                    ['Followed Rules', {{FollowedRulesCount}}]
+                ]);
+
+                let options = {
+                    title: '',
+                    pieHole: 0.75,
+                    slices: {                                               
+                        0: { color: '#b60202' },
+                        1: { color: '#1400c7' }
+                    },
+                    legend: {
+                        position: 'bottom'
+                    }
+                };
+                
+                let chart = new google.visualization.PieChart(
+                    document.getElementById('architectural_rules_chart'));
+
+                chart.draw(data, options);
+            };
+
+            function createElementWithClass(elem, className) {
+                let div = document.createElement(elem);
+                
+                div.className = className;
+
+                return div;
+            }
+
+            function getMediaDiv(rule, hasViolations) {
+                let media = createElementWithClass('div', 'media');
+                let mediaBody = createElementWithClass('div', 'media-body rule-description');
+                let img = createElementWithClass('div', 'align-self-center background-icon rule-icon');
+                let p = createElementWithClass('p', 'media-heading');
+
+                if (hasViolations)
+                    img.classList.add('rule-icon-fail');
+                else
+                    img.classList.add('rule-icon-check');
+                
+                let ruleDescription = `<b>Origin: </b>${rule.OriginLayer} `;
+                ruleDescription += `<b>Operator: </b>${rule.RuleOperator} `;
+                ruleDescription += `<b>Target: </b>${rule.TargetLayer}`;
+
+                if (rule.RelationTypes != null && rule.RelationTypes.length > 0) {
+                    let types = '';
+
+                    for (let i = 0; i < rule.RelationTypes.length; i++) {
+                        types += (types.length > 0 ? ', ' : '') + rule.RelationTypes[i];                        
+                    }
+
+                    ruleDescription += `<br />Applied to: ${types}`;
+                } else {
+                    ruleDescription += `<br />Applied to all relation types`;
+                }
+
+                p.innerHTML = ruleDescription;
+
+                mediaBody.appendChild(p);
+                media.appendChild(img);
+                media.appendChild(mediaBody);
+
+                return media;
+            }
+
+            function getExpandButton(buttonClassName, collapseDivId) {
+                let buttonLink = createElementWithClass('a', buttonClassName);
+                
+                buttonLink.setAttribute('data-toggle', 'collapse');
+                buttonLink.setAttribute('href', `#${collapseDivId}`);
+                buttonLink.setAttribute('role', 'button');
+                buttonLink.setAttribute('aria-expanded', 'false');
+                buttonLink.setAttribute('aria-controls', collapseDivId);
+                
+                let img = createElementWithClass('div', 'align-self-center background-icon expand-button expand-plus-button');
+
+                buttonLink.appendChild(img);
+
+                return buttonLink;
+            }
+
+            function getExpandComponent(expandClassName, buttonClassName, 
+                collapseDivId, buttonComplement, alterCollapseDiv) {
+
+                let expandSection = createElementWithClass('div', expandClassName);
+                let expandSectionRow = createElementWithClass('div', 'row');
+                let expandSectionCol = createElementWithClass('div', 'col-12');    
+                let expandSectionLink = getExpandButton(buttonClassName, collapseDivId);
+                
+                let collapseDiv = createElementWithClass('div', 'collapse multi-collapse row');
+                let collapseColDiv = createElementWithClass('div', 'col-12');
+
+                collapseDiv.setAttribute('id', collapseDivId);
+
+                expandSectionCol.appendChild(expandSectionLink);
+                expandSectionRow.appendChild(expandSectionCol);
+                
+                let complement = createElementWithClass('span', 'expand-complement');
+                complement.innerText = buttonComplement;
+                expandSectionLink.appendChild(complement);
+                
+                alterCollapseDiv(collapseColDiv);
+                collapseDiv.appendChild(collapseColDiv);
+
+                expandSection.appendChild(expandSectionRow);
+                expandSection.appendChild(collapseDiv);
+
+                return expandSection;
+            }
+
+            function getViolationListItem(violation) {
+                let li = createElementWithClass('li', 'list-group-item');
+                
+                let relations = violation.NonConformingRelations;
+                
+                if (relations != null && relations.length > 0)
+                {
+                    let relationsCount = document.getElementsByClassName('violation-relations').length + 1;
+                    let relationsCollapseDivId = `relations-collapse-${relationsCount}`;        
+                    let violationRelations = getExpandComponent('violation-relations', 'expand-relations', 
+                        relationsCollapseDivId, ` ${violation.Structure}`, function(collapseDiv) {
+                            
+                            let violationsList = createElementWithClass('ul', 'list-group list-group-flush');
+
+                            for (let i = 0; i < relations.length; i++) {
+                                let targets = relations[i].Targets;
+                                let type = relations[i].RelationType;
+                                let listItem = createElementWithClass('li', 'list-group-item');
+
+                                if (targets.length == 1) {
+                                    listItem.innerHTML = `<b>Type: </b>${type} - <b>Target: </b>${targets[0]}`;
+                                } else {
+                                    listItem.innerHTML = `<b>Type: </b>${type}<br />`;
+                                    let targetList = createElementWithClass(
+                                        'ul', 'list-group list-group-flush');
+
+                                    for (let j = 0; j < targets.length; j++) {
+                                        let liTarget = createElementWithClass('li', 'list-group-item');
+                                        liTarget.innerText = targets[j];
+                                        targetList.appendChild(liTarget);
+                                    }
+
+                                    listItem.appendChild(targetList);
+                                }
+
+                                violationsList.appendChild(listItem);
+                            }
+
+                            collapseDiv.appendChild(violationsList);
+                    });
+
+                    li.appendChild(violationRelations);
+                } else {
+                    li.innerText = violation.Structure;
+                }
+                
+                return li;
+            }
+
+            function getViolationsDiv(violations) {
+                let violationsCount = document.getElementsByClassName('rule-content').length + 1;
+                let violationsCollapseDivId = `violations-collapse-${violationsCount}`;
+
+                let buttonComplement = ' Check components that do not follow this rule';
+                let ruleViolations = getExpandComponent('rule-violations', 'expand-violations', 
+                    violationsCollapseDivId, buttonComplement, function(collapseDiv) {
+                        let structureList = createElementWithClass(
+                            'ul', 'list-group list-group-flush');
+
+                        for (let i = 0; i < violations.length; i++) {
+                            structureList.appendChild(getViolationListItem(violations[i]));
+                        }
+
+                        collapseDiv.appendChild(structureList);
+                });
+                
+                return ruleViolations;
+            }
+
+            function insertRule(mainDiv, rule, violations)
+            {
+                let hasViolations = violations != null && violations.length > 0;
+                let ruleContent = createElementWithClass('div', 'rule-content');
+                
+                ruleContent.appendChild(getMediaDiv(rule, hasViolations))
+
+                if (hasViolations)
+                {
+                    ruleContent.appendChild(getViolationsDiv(violations))
+                }
+
+                mainDiv.appendChild(ruleContent);
+            }
+
+            function fillWithRules() {
+                const mainDiv = document.getElementById('rule-list');
+                
+                for (let i = 0; i < transgressedRules.length; i++) {
+                    insertRule(mainDiv,
+                        transgressedRules[i].Rule, 
+                        transgressedRules[i].Violations);
+                }
+
+                for (let i = 0; i < followedRules.length; i++) {
+                    insertRule(mainDiv,
+                        followedRules[i].Rule, null);
+                }
+            }
+
+            function getParentByClass(element, className) {
+                if (element == null || element.classList.contains(className))
+                    return element;
+
+                return getParentByClass(element.parentElement, className);
+            }
+
+            function addToggleEventButton(buttonClass) {
+                let buttons = document.getElementsByClassName(buttonClass);
+
+                for (let i = 0; i < buttons.length; i++) {
+                    buttons[i].addEventListener('click', function(event) {
+                        let element = event.srcElement;
+                        let link = getParentByClass(element, buttonClass);
+
+                        if (link != null)
+                        {
+                            let img = link.getElementsByClassName('expand-button')[0]
+
+                            if (img)
+                            {
+                                if (img.classList.contains('expand-plus-button')) {
+                                    img.classList.remove('expand-plus-button');
+                                    img.classList.add('expand-minus-button');
+                                } else {
+                                    img.classList.remove('expand-minus-button');
+                                    img.classList.add('expand-plus-button');
+                                }
+                            }
+                        }
+                    }, false);
+                }
+            }
+
+            documentReady(function() {
+                google.charts.load("current", {packages:["corechart"]});
+                google.charts.setOnLoadCallback(drawArchitecturalRulesChart);
+                
+                fillWithRules();
+
+                addToggleEventButton('expand-violations');
+                addToggleEventButton('expand-relations');
+            });
+        </script>
+    </body>
+</html>
