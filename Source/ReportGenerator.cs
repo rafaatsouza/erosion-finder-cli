@@ -13,6 +13,7 @@ namespace ErosionFinderCLI
     {
         private const string regexTemplatePattern = "\\{\\{(.*?)\\}\\}";
         private const string templateFileName = "report.html";
+        private const string ErosionFinderReportResources = "Resources";
 
         private readonly static Type modelType = typeof(Report);
         private readonly static ICollection<string> textResources = 
@@ -22,9 +23,6 @@ namespace ErosionFinderCLI
         public static async Task WriteReportAsync(string reportFolderFullName, 
             string reportFileName, ArchitecturalConformanceCheck conformanceCheck)
         {
-            Console.WriteLine(reportFolderFullName);
-            Console.WriteLine(reportFileName);
-
             var resourcesTask = WriteResourceFilesAsync(
                 reportFolderFullName);
 
@@ -66,9 +64,7 @@ namespace ErosionFinderCLI
 
         private static async Task WriteResourceFilesAsync(string directory)
         {
-            //TODO: Validar quando flag "-o" não for passada
-            
-            var folder = Path.Join(directory, "Resources");
+            var folder = Path.Join(directory, ErosionFinderReportResources);
 
             var directoryInfo = new DirectoryInfo(folder);
 

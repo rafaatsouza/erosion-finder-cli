@@ -14,18 +14,11 @@ namespace ErosionFinderCLI.Helpers
         {
             var resourceName = GetResourceNameByFileName(resourceFileName);
 
-            using (var stream = GetResourceStream(resourceName))
+            using (var stream = assembly.GetManifestResourceStream(resourceName))
             using (var reader = new StreamReader(stream))
             {
                 return reader.ReadToEnd();
             }
-        }
-
-        private static Stream GetResourceStream(string resource)
-        {
-            var resourceName = GetResourceNameByFileName(resource);
-
-            return assembly.GetManifestResourceStream(resourceName);
         }
 
         private static string GetResourceNameByFileName(string fileName)
