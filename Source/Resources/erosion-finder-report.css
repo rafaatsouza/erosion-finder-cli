@@ -1,6 +1,4 @@
 body {
-    font-family: Roboto;
-    position: relative;
     padding-top: 5em;
 }
 
@@ -106,8 +104,4 @@ body {
 
 .chart {
     padding-bottom: 15px;
-}
-
-.hidden {
-    display: none;
 }
