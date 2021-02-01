@@ -10,7 +10,7 @@ function drawArchitecturalRulesChart() {
                     transgressedRules.length
                 ],
                 backgroundColor: [
-                    'rgb(75, 192, 192)', 
+                    'rgb(7, 163, 20)', 
                     'rgb(214, 16, 16)'
                 ]
             }],
