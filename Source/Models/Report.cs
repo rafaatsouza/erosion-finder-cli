@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using ErosionFinder.Data.Models;
 using Newtonsoft.Json;
 
@@ -11,16 +10,6 @@ namespace ErosionFinderCLI.Models
         /// Solution name
         /// </summary>
         public string SolutionName { get; }
-
-        /// <summary>
-        /// Total number of Violated rules
-        /// </summary>
-        public int ViolatedRulesCount {get; }
-
-        /// <summary>
-        /// Total number of Followed rules
-        /// </summary>
-        public int FollowedRulesCount {get; }
 
         /// <summary>
         /// Followed rule serialized list
@@ -35,9 +24,6 @@ namespace ErosionFinderCLI.Models
         public Report(ArchitecturalConformanceCheck conformanceCheck)
         {
             SolutionName = conformanceCheck.SolutionName;
-
-            FollowedRulesCount = conformanceCheck.FollowedRules.Count();
-            ViolatedRulesCount = conformanceCheck.TransgressedRules.Count();
 
             FollowedRules = JsonConvert.SerializeObject(
                 conformanceCheck.FollowedRules, SerializerSettings);

@@ -18,7 +18,7 @@ namespace ErosionFinderCLI
         private readonly static Type modelType = typeof(Report);
         private readonly static ICollection<string> textResources = 
             new string[] { "bootstrap.min.css", "bootstrap.min.js", 
-                "jquery-3.2.1.slim.min.js", "loader.js", "erosion-finder.css" };
+                "jquery-3.2.1.slim.min.js", "erosion-finder.css", "chart.min.js" };
 
         public static async Task WriteReportAsync(string reportFolderFullName, 
             string reportFileName, ArchitecturalConformanceCheck conformanceCheck)

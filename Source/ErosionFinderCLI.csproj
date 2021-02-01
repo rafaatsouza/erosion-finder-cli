@@ -18,7 +18,7 @@
     <EmbeddedResource Include="Resources\report.html" />
     <EmbeddedResource Include="Resources\bootstrap.min.css" />
     <EmbeddedResource Include="Resources\jquery-3.2.1.slim.min.js" />
-    <EmbeddedResource Include="Resources\loader.js" />
+    <EmbeddedResource Include="Resources\chart.min.js" />
     <EmbeddedResource Include="Resources\bootstrap.min.js" />
     <EmbeddedResource Include="Resources\erosion-finder.css" />
   </ItemGroup>

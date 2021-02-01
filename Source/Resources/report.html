@@ -39,7 +39,7 @@
                     </div>
                     <div class="row justify-content-start">
                         <div class="col-12">
-                            <div class="chart" id="architectural_rules_chart"></div>
+                            <canvas class="chart" id="architectural_rules_chart"></canvas>
                         </div>
                     </div>
                     <div id="rule-list">
@@ -49,34 +49,47 @@
         </div>
         <script type="text/javascript" src="Resources/jquery-3.2.1.slim.min.js"></script>
         <script type="text/javascript" src="Resources/bootstrap.min.js"></script>
-        <script type="text/javascript" src="Resources/loader.js"></script>
+        <script type="text/javascript" src="Resources/chart.min.js"></script>
         <script type="text/javascript">
             const transgressedRules = {{TransgressedRules}};
             const followedRules = {{FollowedRules}};
 
-            function drawArchitecturalRulesChart() {                
-                let data = google.visualization.arrayToDataTable([
-                    ['Rules', 'Components'],
-                    ['Transgressed Rules', {{ViolatedRulesCount}}],
-                    ['Followed Rules', {{FollowedRulesCount}}]
-                ]);
-
-                let options = {
-                    title: '',
-                    pieHole: 0.75,
-                    slices: {                                               
-                        0: { color: '#b60202' },
-                        1: { color: '#1400c7' }
+            function drawArchitecturalRulesChart() {
+                let chartElement = document.getElementById('architectural_rules_chart');
+                
+                let chartConfig = {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [{
+                            data: [
+                                followedRules.length,
+                                transgressedRules.length
+                            ],
+                            backgroundColor: [
+                                'rgb(75, 192, 192)', 
+                                'rgb(214, 16, 16)'
+                            ]
+                        }],
+                        labels: [
+                            'Followed Rules',
+                            'Transgressed Rules'
+                        ]
                     },
-                    legend: {
-                        position: 'bottom'
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        circumference: Math.PI,
+                        rotation: -Math.PI,
+                        legend: {
+                            position: 'bottom',
+                        },
+                        animation: {
+                            animateRotate: true
+                        }
                     }
                 };
                 
-                let chart = new google.visualization.PieChart(
-                    document.getElementById('architectural_rules_chart'));
-
-                chart.draw(data, options);
+                new Chart(chartElement, chartConfig);
             };
 
             function createElementWithClass(elem, className) {
@@ -302,9 +315,7 @@
             }
 
             documentReady(function() {
-                google.charts.load("current", {packages:["corechart"]});
-                google.charts.setOnLoadCallback(drawArchitecturalRulesChart);
-                
+                drawArchitecturalRulesChart();                
                 fillWithRules();
 
                 addToggleEventButton('expand-violations');
