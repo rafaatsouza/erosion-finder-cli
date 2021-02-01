@@ -219,8 +219,7 @@ function fillWithRules() {
     }
 
     for (let i = 0; i < followedRules.length; i++) {
-        insertRule(mainDiv,
-            followedRules[i].Rule, null);
+        insertRule(mainDiv,followedRules[i], null);
     }
 }
 
