@@ -178,7 +178,7 @@ function getViolationsDiv(violations) {
     let violationsCount = document.getElementsByClassName('rule-content').length + 1;
     let violationsCollapseDivId = `violations-collapse-${violationsCount}`;
 
-    let buttonComplement = ' Check components that do not follow this rule';
+    let buttonComplement = ' Rule Violations';
     let ruleViolations = getExpandComponent('rule-violations', 'expand-violations', 
         violationsCollapseDivId, buttonComplement, function(collapseDiv) {
             let structureList = createElementWithClass(
