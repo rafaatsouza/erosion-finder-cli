@@ -75,13 +75,13 @@ namespace ErosionFinderCLI
             foreach (var resource in textResources)
             {
                 var filePath = Path.Join(folder, resource);
-                var content = ResourceHelper.GetResourceTextContent(resource);
 
                 DeleteFile(filePath);
 
                 using (var file = File.CreateText(filePath))
                 {
-                    await file.WriteAsync(content);
+                    await file.WriteAsync(
+                        ResourceHelper.GetResourceTextContent(resource));
                 }
             }
         }

@@ -2,6 +2,7 @@
 using ErosionFinder.Data.Converter;
 using ErosionFinder.Data.Exceptions.Base;
 using ErosionFinder.Data.Models;
+using ErosionFinderCLI.Helpers;
 using Microsoft.Build.Locator;
 using Newtonsoft.Json;
 using System;
@@ -38,10 +39,11 @@ namespace ErosionFinderCLI
 
             try
             {
-                var parameters = CommandLineParser.GetParameters(args);
+                var parameters = CommandLineHelper.GetParameters(args);
 
                 var conformanceCheck = await GetArchitecturalConformanceCheckAsync(
-                    parameters.ArchitecturalLayersAndRulesFilePath, parameters.SolutionFilePath, cancellationTokenSource.Token);
+                    parameters.ArchitecturalLayersAndRulesFilePath, parameters.SolutionFilePath, 
+                        cancellationTokenSource.Token);
 
                 await ReportGenerator.WriteReportAsync(parameters.OutputFolderPath,
                     parameters.OutputFileName, conformanceCheck);

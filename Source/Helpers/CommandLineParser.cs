@@ -3,9 +3,9 @@ using ErosionFinderCLI.Models;
 using System;
 using System.IO;
 
-namespace ErosionFinderCLI
+namespace ErosionFinderCLI.Helpers
 {
-    static class CommandLineParser
+    static class CommandLineHelper
     {
         public static ConformanceCheckParameters GetParameters(string[] args)
         {
