@@ -1,6 +1,6 @@
 ﻿using CommandLine;
 
-namespace ErosionFinderCLI
+namespace ErosionFinderCLI.Models
 {
     class ApplicationArguments
     {
