@@ -31,15 +31,6 @@ namespace ErosionFinderCLI.Models
                 conformanceCheck.TransgressedRules, SerializerSettings);
         }
 
-        private int GetStructureTypeCount(StructureType type,
-            IDictionary<StructureType, int> structuresCount)
-        {
-            if (!structuresCount.ContainsKey(type))
-                return 0;
-
-            return structuresCount[type];
-        }   
-
         private readonly static JsonSerializerSettings SerializerSettings
             = new JsonSerializerSettings()
             {
