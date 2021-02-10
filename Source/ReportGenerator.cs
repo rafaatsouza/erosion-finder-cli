@@ -2,7 +2,6 @@ using ErosionFinder.Data.Models;
 using ErosionFinderCLI.Helpers;
 using ErosionFinderCLI.Models;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -13,10 +12,10 @@ namespace ErosionFinderCLI
     {
         private const string regexTemplatePattern = "\\{\\{(.*?)\\}\\}";
         private const string templateFileName = "report.html";
-        private const string ErosionFinderReportResources = "Resources";
+        private const string OutputReportResourcesFolder = "Resources";
 
         private readonly static Type modelType = typeof(Report);
-        private readonly static ICollection<string> textResources = 
+        private readonly static string[] resources = 
             new string[] { "bootstrap.min.css", "bootstrap.min.js", 
                 "jquery-3.2.1.slim.min.js", "erosion-finder-report.min.css", 
                 "chart.min.js", "erosion-finder-report.min.js" };
@@ -30,7 +29,7 @@ namespace ErosionFinderCLI
             var reportFileFullName = Path.Join(
                 reportFolderFullName, reportFileName);
 
-            DeleteFile(reportFileFullName);
+            DeleteFileIfExists(reportFileFullName);
 
             using (var file = File.CreateText(reportFileFullName))
             {
@@ -65,18 +64,13 @@ namespace ErosionFinderCLI
 
         private static async Task WriteResourceFilesAsync(string directory)
         {
-            var folder = Path.Join(directory, ErosionFinderReportResources);
+            var folder = GetResourcesFolderPath(directory);
 
-            var directoryInfo = new DirectoryInfo(folder);
-
-            if (!directoryInfo.Exists)
-                Directory.CreateDirectory(folder);
-
-            foreach (var resource in textResources)
+            foreach (var resource in resources)
             {
                 var filePath = Path.Join(folder, resource);
 
-                DeleteFile(filePath);
+                DeleteFileIfExists(filePath);
 
                 using (var file = File.CreateText(filePath))
                 {
@@ -86,7 +80,20 @@ namespace ErosionFinderCLI
             }
         }
 
-        private static void DeleteFile(string filePath)
+        private static string GetResourcesFolderPath(string baseDirectory)
+        {
+            var folder = Path.Join(baseDirectory, 
+                OutputReportResourcesFolder);
+
+            var directoryInfo = new DirectoryInfo(folder);
+
+            if (!directoryInfo.Exists)
+                Directory.CreateDirectory(folder);
+
+            return folder;
+        }
+
+        private static void DeleteFileIfExists(string filePath)
         {
             var fileInfo = new FileInfo(filePath);
 
