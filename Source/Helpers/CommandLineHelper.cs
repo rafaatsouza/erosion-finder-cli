@@ -27,15 +27,12 @@ namespace ErosionFinderCLI.Helpers
 
             var outputFileInfo = new FileInfo(arguments.OutputFilePath);
 
-            var outputFileName = outputFileInfo.Name;
-            var outputFolderPath = outputFileInfo.Directory.FullName;
-
             return new ConformanceCheckParameters()
             {
                 SolutionFilePath = arguments.SolutionFilePath,
                 ArchitecturalLayersAndRulesFilePath = arguments.ArchitecturalLayersAndRulesFilePath,
-                OutputFileName = outputFileName,
-                OutputFolderPath = outputFolderPath
+                OutputFileName = outputFileInfo.Name,
+                OutputFolderPath = outputFileInfo.Directory.FullName
             };
         }
 
