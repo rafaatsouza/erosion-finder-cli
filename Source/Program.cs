@@ -67,25 +67,20 @@ namespace ErosionFinderCLI
         private static Task<ArchitecturalConformanceCheck> GetArchitecturalConformanceCheckAsync(
             string layersAndRulesFilePath, string solutionFilePath, CancellationToken cancellationToken)
         {
-            var constraints = GetConstraintsByFilePath(layersAndRulesFilePath);
-
-            return ErosionFinderMethods.CheckArchitecturalConformanceAsync(
-                solutionFilePath, constraints, cancellationToken);
-        }
-
-        private static ArchitecturalConstraints GetConstraintsByFilePath(string constraintsFilePath)
-        {
-            var constraintsFile = new FileInfo(constraintsFilePath);
+            var constraintsFile = new FileInfo(layersAndRulesFilePath);
 
             if (!constraintsFile.Exists)
                 return null;
 
-            using (var streamReader = new StreamReader(constraintsFilePath))
+            using (var streamReader = new StreamReader(layersAndRulesFilePath))
             {
-                var json = streamReader.ReadToEnd();
+                var jsonContent = streamReader.ReadToEnd();
                 
-                return JsonConvert.DeserializeObject<ArchitecturalConstraints>(
-                    json, new NamespacesGroupingDeserializer());
+                var constraints = JsonConvert.DeserializeObject<ArchitecturalConstraints>(
+                    jsonContent, new NamespacesGroupingDeserializer());
+
+                return ErosionFinderMethods.CheckArchitecturalConformanceAsync(
+                    solutionFilePath, constraints, cancellationToken);
             }
         }
 

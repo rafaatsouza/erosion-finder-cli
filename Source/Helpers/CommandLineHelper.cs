@@ -50,7 +50,7 @@ namespace ErosionFinderCLI.Helpers
 
                 return fileInfo.Exists;                
             }
-            catch (System.IO.PathTooLongException) 
+            catch (PathTooLongException) 
             {
                 return false;
             }
