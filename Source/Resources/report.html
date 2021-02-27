@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+        <meta description="Conformance check output from {{SolutionName}} Erosion Check" content="Conformance check output from {{SolutionName}} Erosion Check" />
+        <title>{{SolutionName}} Erosion Check</title>
+        <link rel="stylesheet" href="Resources/bootstrap.min.css" />
+        <link rel="stylesheet" href="Resources/erosion-finder-report.min.css" />
+        <script type="text/javascript">
+            function documentReady(fn) {
+                if (document.readyState != 'loading'){
+                    fn();
+                } else if (document.addEventListener) {
+                    document.addEventListener('DOMContentLoaded', fn);
+                } else {
+                    document.attachEvent('onreadystatechange', function() {
+                    if (document.readyState != 'loading')
+                        fn();
+                    });
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <header id="header">
+            <div class="inner">
+                <div class="background-icon logo-background"></div>
+                <span>ErosionFinder</span>
+            </div>
+        </header>
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-10">
+                    <div class="row justify-content-start">
+                        <div style="padding-top: 15px;" class="col-12">
+                            <h2>Erosions Summary</h2>
+                        </div>
+                    </div>
+                    <div class="row justify-content-start">
+                        <div class="col-12">
+                            <canvas class="chart" id="architectural_rules_chart"></canvas>
+                        </div>
+                    </div>
+                    <div id="rule-list">
+                    </div>
+                </div>
+            </div>            
+        </div>
+        <script type="text/javascript" src="Resources/jquery-3.2.1.slim.min.js"></script>
+        <script type="text/javascript" src="Resources/bootstrap.min.js"></script>
+        <script type="text/javascript" src="Resources/chart.min.js"></script>
+        <script type="text/javascript" src="Resources/erosion-finder-report.min.js"></script>
+        <script type="text/javascript">
+            const transgressedRules = {{TransgressedRules}};
+            const followedRules = {{FollowedRules}};
+
+            documentReady(function() {
+                drawArchitecturalRulesChart();                
+                fillWithRules();
+
+                addToggleEventButton('expand-violations');
+                addToggleEventButton('expand-relations');
+            });
+        </script>
+    </body>
+</html>

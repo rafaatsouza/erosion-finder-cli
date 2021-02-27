@@ -2,6 +2,7 @@
 using ErosionFinder.Data.Converter;
 using ErosionFinder.Data.Exceptions.Base;
 using ErosionFinder.Data.Models;
+using ErosionFinderCLI.Helpers;
 using Microsoft.Build.Locator;
 using Newtonsoft.Json;
 using System;
@@ -36,24 +37,18 @@ namespace ErosionFinderCLI
         {
             Console.WriteLine("Starting...");
 
-            var arguments = CommandLineParser.GetArguments(args);
-
-            if (arguments == null)
-                return;
-
             try
             {
-                var constraints = GetConstraintsByFilePath(
-                    arguments.ArchitecturalLayersAndRulesFilePath);
+                var parameters = CommandLineHelper.GetParameters(args);
 
-                var violations = await ErosionFinderMethods
-                    .GetViolationsBySolutionFilePathAndConstraintsAsync(
-                        arguments.SolutionFilePath, constraints, cancellationTokenSource.Token);
+                var conformanceCheck = await GetArchitecturalConformanceCheckAsync(
+                    parameters.ArchitecturalLayersAndRulesFilePath, parameters.SolutionFilePath, 
+                        cancellationTokenSource.Token);
 
-                await ReportGenerator.WriteReportAsync(
-                    arguments.OutputFilePath, violations);
+                await ReportGenerator.WriteReportAsync(parameters.OutputFolderPath,
+                    parameters.OutputFileName, conformanceCheck);
 
-                Console.WriteLine($"Report generated: {arguments.OutputFilePath}");
+                Console.WriteLine($"Report generated: {parameters.OutputFileName}");
             }
             catch (ErosionFinderException ex)
             {
@@ -69,19 +64,23 @@ namespace ErosionFinderCLI
             }
         }
 
-        private static ArchitecturalConstraints GetConstraintsByFilePath(string constraintsFilePath)
+        private static Task<ArchitecturalConformanceCheck> GetArchitecturalConformanceCheckAsync(
+            string layersAndRulesFilePath, string solutionFilePath, CancellationToken cancellationToken)
         {
-            var constraintsFile = new FileInfo(constraintsFilePath);
+            var constraintsFile = new FileInfo(layersAndRulesFilePath);
 
             if (!constraintsFile.Exists)
                 return null;
 
-            using (var streamReader = new StreamReader(constraintsFilePath))
+            using (var streamReader = new StreamReader(layersAndRulesFilePath))
             {
-                var json = streamReader.ReadToEnd();
+                var jsonContent = streamReader.ReadToEnd();
                 
-                return JsonConvert.DeserializeObject<ArchitecturalConstraints>(
-                    json, new NamespacesGroupingDeserializer());
+                var constraints = JsonConvert.DeserializeObject<ArchitecturalConstraints>(
+                    jsonContent, new NamespacesGroupingDeserializer());
+
+                return ErosionFinderMethods.CheckArchitecturalConformanceAsync(
+                    solutionFilePath, constraints, cancellationToken);
             }
         }
 
