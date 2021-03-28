@@ -63,7 +63,7 @@ function getMediaDiv(rule, hasViolations) {
         let types = '';
 
         for (let i = 0; i < rule.RelationTypes.length; i++) {
-            types += (types.length > 0 ? ', ' : '') + rule.RelationTypes[i];                        
+            types += (types.length > 0 ? ', ' : '') + rule.RelationTypes[i];                
         }
 
         ruleDescription += `<br />Applied to: ${types}`;
@@ -126,14 +126,12 @@ function getExpandComponent(expandClassName, buttonClassName,
 }
 
 function getViolationListItem(violation) {
-    let li = createElementWithClass('li', 'list-group-item');
-    
+    let li = createElementWithClass('li', 'list-group-item');    
     let relations = violation.NonConformingRelations;
     
     if (relations != null && relations.length > 0)
     {
-        let relationsCount = document.getElementsByClassName('violation-relations').length + 1;
-        let relationsCollapseDivId = `relations-collapse-${relationsCount}`;        
+        let relationsCollapseDivId = `collapse-${GetUuidV4()}`;
         let violationRelations = getExpandComponent('violation-relations', 'expand-relations', 
             relationsCollapseDivId, ` ${violation.Structure}`, function(collapseDiv) {
                 
@@ -255,4 +253,11 @@ function addToggleEventButton(buttonClass) {
             }
         }, false);
     }
+}
+
+function GetUuidV4() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return r.toString(16);
+    });
 }
